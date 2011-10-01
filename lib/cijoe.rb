@@ -126,6 +126,9 @@ class CIJoe
     end
 
     Process.waitpid(build.pid, 1)
+    if $?.nil?
+      raise "$? is nil, #{build.inspect}"
+    end
     status = $?.exitstatus.to_i
     @current_build = build
     puts "#{Time.now.to_i}: Built #{build.short_sha}: status=#{status}"
@@ -152,7 +155,10 @@ class CIJoe
   end
 
   def git_user_and_project
-    Config.remote(@project_path).origin.url.to_s.chomp('.git').split(':')[-1].split('/')[-2, 2]
+    m = CIJoe::Config.remote(@project_path).origin.url.to_s.chomp('.git').match(/(.*)@.*:(.*)/)
+    return [nil,nil] if m.nil?
+    return [ m[1], m[2]]
+    # Config.remote(@project_path).origin.url.to_s.chomp('.git').split(':')[-1].split('/')[-2, 2]
   end
 
   def git_branch
