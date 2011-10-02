@@ -127,7 +127,7 @@ class CIJoe
 
     Process.waitpid(build.pid, 1)
     if $?.nil?
-      raise "$? is nil, #{build.inspect}"
+      raise "Unable to attach to process\nBuild: #{build.inspect}\nPath: #{`echo $PATH`}"
     end
     status = $?.exitstatus.to_i
     @current_build = build
